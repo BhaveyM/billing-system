@@ -48,7 +48,7 @@ async function addToCart(userId, itemId, itemType) {
     if (!user) {
       throw new Error("User not found");
     }
-
+    
     // Check if the item already exists in the cart
     const existingCartItem = user.cart.find(item => item.itemId.toString() === itemId && item.itemType === itemType);
     if (existingCartItem) {
@@ -56,7 +56,6 @@ async function addToCart(userId, itemId, itemType) {
     } else {
       user.cart.push({ itemId, itemType });
     }
-
     await user.save();
     return user;
   } catch (error) {
@@ -93,26 +92,52 @@ async function clearCart(userId) {
     throw new Error("Error clearing cart");
   }
 }
-
 // async function getTotalBill(userId) {
 //   try {
 //     const user = await User.findById(userId).populate('cart.itemId');
 //     if (!user) {
 //       throw new Error("User not found");
 //     }
-
+//     console.log(user);
 //     let totalBill = 0;
-//     const itemsWithTax = user.cart.map(item => {
-//       const price = item.itemId.price;
+//     const itemsWithTax = [];
+//     for (const cartItem of user.cart) {
+//       const item = cartItem.itemId;
+//       const quantity = cartItem.quantity;
 //       let tax = 0;
-//       if (item.itemType === 'product') {
-//         tax = price > 1000 && price <= 5000 ? price * 0.12 : price > 5000 ? price * 0.18 : 200;
-//       } else if (item.itemType === 'service') {
-//         tax = price > 1000 && price <= 8000 ? price * 0.10 : price > 8000 ? price * 0.15 : 100;
+//       let price = 0; // Initialize price variable
+//       let pa = 0.12, pb = 0.18, pc = 200, sa = 0.10, sb = 0.15, sc = 100;
+//       if (item && item.type === 'product') {
+//         price = item.price; // Set price for products
+//         if (price > 1000 && price <= 5000) {
+//           tax = price * pa;
+//         } else if (price > 5000) {
+//           tax = price * pb;
+//         }
+//         tax += pc;
+//       } else if (!item || (item && item.type === 'service')) {
+//         price = item.price;
+//         if (price > 1000 && price <= 8000) {
+//           tax = price * sa;
+//         } else if (price > 8000) {
+//           tax = price * sb;
+//         }
+//         tax += sc;
 //       }
-//       totalBill += (price + tax) * item.quantity;
-//       return { ...item.itemId._doc, quantity: item.quantity, tax };
-//     });
+
+//       const itemTotalPrice = (price + tax) * quantity;
+//       totalBill += itemTotalPrice;
+
+//       itemsWithTax.push({
+//         _id: item ? item._id : null,
+//         name: item ? item.name : cartItem.name,
+//         type: item ? item.type : 'service',
+//         quantity,
+//         price,
+//         tax,
+//         itemTotalPrice,
+//       });
+//     }
 
 //     return { itemsWithTax, totalBill };
 //   } catch (error) {
@@ -120,21 +145,19 @@ async function clearCart(userId) {
 //   }
 // }
 
+
 async function getTotalBill(userId) {
     try {
       const user = await User.findById(userId).populate('cart.itemId');
       if (!user) {
         throw new Error("User not found");
       }
-  
       let totalBill = 0;
       const itemsWithTax = [];
-  
       for (const cartItem of user.cart) {
         const item = cartItem.itemId;
         const quantity = cartItem.quantity;
         const price = item.price;
-        console.log(item, quantity, price);
         let tax = 0;
         let pa = 0.12, pb = 0.18, pc = 200, sa = 0.10, sb = 0.15, sc = 100;
         if (item.type === 'product') {
@@ -165,13 +188,12 @@ async function getTotalBill(userId) {
           itemTotalPrice,
         });
       }
-      console.log(itemsWithTax, totalBill);
       return { itemsWithTax, totalBill };
     } catch (error) {
       throw new Error("Error calculating total bill");
     }
 }
-  
+
 async function confirmOrder(userId) {
   try {
     const user = await User.findById(userId);
@@ -192,7 +214,6 @@ async function confirmOrder(userId) {
       })),
       totalBill,
     });
-
     await order.save();
 
     // Clear the cart after confirming the order

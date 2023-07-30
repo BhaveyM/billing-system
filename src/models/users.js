@@ -5,8 +5,12 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: true },
     isAdmin: { type: Boolean, required: true, default: false },
     cart: [{
-      itemId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' }, // or 'Service'
+      // itemId: { type: mongoose.Schema.Types.ObjectId, ref: 'Service' }, // or 'Service'
       itemType: { type: String, enum: ['product', 'service'], required: true },
+      itemId: {
+        type: mongoose.Schema.Types.ObjectId,
+        refPath: 'cart.itemType', // Dynamic reference based on the itemType field
+      },
       quantity: { type: Number, default: 1 },
     }],
   });

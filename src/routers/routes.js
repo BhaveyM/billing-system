@@ -113,26 +113,16 @@ router.get('/users/:username', async (req, res) => {
   }
 });
 
-async function isAdmin(req, res, next) {
-  const { username } = req;
+router.get('/:username/orders', async (req, res) => {
   try {
+    const { username } = req.params;
     const user = await getUserByUsername(username);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
-
-    if (user.isAdmin) {
-      next();
-    } else {
-      return res.status(403).json({ error: 'Forbidden: Only admin can access this route' });
+    if (!user.isAdmin) {
+      return res.status(404).json({ error: 'No admin access' });
     }
-  } catch (error) {
-    return res.status(500).json({ error: 'Error fetching user' });
-  }
-}
-
-router.get('/orders', isAdmin, async (req, res) => {
-  try {
     const orders = await getAllOrders();
     return res.status(200).json(orders);
   } catch (error) {

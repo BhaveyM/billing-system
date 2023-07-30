@@ -5,5 +5,5 @@ const productSchema = new mongoose.Schema({
     type: { type: String, enum: ['product'], required: true },
   });
   
-const Product = mongoose.model('Product', productSchema);
+const Product = mongoose.model('product', productSchema);
 module.exports = Product  

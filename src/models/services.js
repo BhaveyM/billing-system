@@ -5,5 +5,5 @@ const serviceSchema = new mongoose.Schema({
     type: { type: String, enum: ['service'], required: true },
   });
   
-const Service = mongoose.model('Service', serviceSchema);
+const Service = mongoose.model('service', serviceSchema);
 module.exports = Service  
