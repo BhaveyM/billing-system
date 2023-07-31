@@ -11,7 +11,7 @@ async function createUser(username, email, password) {
     const savedUser = await newUser.save();
     return savedUser;
   } catch (error) {
-    throw new Error("Error creating user");
+    throw new Error("Error: Username or email is already in use");
   }
 }
 
@@ -92,59 +92,6 @@ async function clearCart(userId) {
     throw new Error("Error clearing cart");
   }
 }
-// async function getTotalBill(userId) {
-//   try {
-//     const user = await User.findById(userId).populate('cart.itemId');
-//     if (!user) {
-//       throw new Error("User not found");
-//     }
-//     console.log(user);
-//     let totalBill = 0;
-//     const itemsWithTax = [];
-//     for (const cartItem of user.cart) {
-//       const item = cartItem.itemId;
-//       const quantity = cartItem.quantity;
-//       let tax = 0;
-//       let price = 0; // Initialize price variable
-//       let pa = 0.12, pb = 0.18, pc = 200, sa = 0.10, sb = 0.15, sc = 100;
-//       if (item && item.type === 'product') {
-//         price = item.price; // Set price for products
-//         if (price > 1000 && price <= 5000) {
-//           tax = price * pa;
-//         } else if (price > 5000) {
-//           tax = price * pb;
-//         }
-//         tax += pc;
-//       } else if (!item || (item && item.type === 'service')) {
-//         price = item.price;
-//         if (price > 1000 && price <= 8000) {
-//           tax = price * sa;
-//         } else if (price > 8000) {
-//           tax = price * sb;
-//         }
-//         tax += sc;
-//       }
-
-//       const itemTotalPrice = (price + tax) * quantity;
-//       totalBill += itemTotalPrice;
-
-//       itemsWithTax.push({
-//         _id: item ? item._id : null,
-//         name: item ? item.name : cartItem.name,
-//         type: item ? item.type : 'service',
-//         quantity,
-//         price,
-//         tax,
-//         itemTotalPrice,
-//       });
-//     }
-
-//     return { itemsWithTax, totalBill };
-//   } catch (error) {
-//     throw new Error("Error calculating total bill");
-//   }
-// }
-
 
 async function getTotalBill(userId) {
     try {
@@ -201,6 +148,10 @@ async function confirmOrder(userId) {
       throw new Error("User not found");
     }
     const { itemsWithTax, totalBill } = await getTotalBill(userId);
+
+    if (itemsWithTax.length === 0) {
+      throw new Error("Cannot confirm order with an empty cart");
+    }
 
     // Save the order in the Order collection
     const order = new Order({
