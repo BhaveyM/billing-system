@@ -27,7 +27,7 @@ npm install
 3. MongoDB connection:
 
    - Provided my personal mongodb atlas uri with open access. (with dummy data)
-   - Can replace with <your-mongodb-atlas-connection-string> (optional)
+   - Can replace with your-mongodb-atlas-connection-string (optional)
 
 4. Start the server:
 
@@ -98,7 +98,6 @@ The server exposes the following API endpoints:
 - `GET /admin/orders`: Get all orders (Admin API). (only accessible through admin account secret username)
 
   Sample Request: (No request body required)
-Certainly! Here's the API endpoint with a sample request body for getting a user by username:
 
 - `GET /users/username/:username`: Get a user by username.
 
